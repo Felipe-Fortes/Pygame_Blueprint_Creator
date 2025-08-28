@@ -6,68 +6,101 @@ from tkinter import messagebox
 def criar_snake():
     codigo_snake = '''
 import pygame
-import sys
 import random
 
+
 pygame.init()
-largura, altura = 600, 400
-tela = pygame.display.set_mode((largura, altura))
-clock = pygame.time.Clock()
+tela = pygame.display.set_mode((500, 500))
+pygame.display.set_caption("Jogo da Cobrinha")
 
 # Cores
 PRETO = (0, 0, 0)
 VERDE = (0, 255, 0)
 VERMELHO = (255, 0, 0)
 
-# Snake
-snake_pos = [[100, 50], [90, 50], [80, 50]]
-snake_direcao = 'DIREITA'
-comida_pos = [random.randrange(1, largura//10)*10, random.randrange(1, altura//10)*10]
+cobrinha = [(100,50)]
+direcao = (10,0)
+comida = (100, 100)
 
-def game_over():
-    pygame.quit()
-    sys.exit()
+# Define a cor dos elementos
+def desenhar():
+    tela.fill(PRETO)
+    for parte in cobrinha:
+        pygame.draw.rect(tela, VERDE, (*parte, 10, 10))
+
+    pygame.draw.rect(tela, VERMELHO, (*comida, 10, 10))
+    pygame.display.update()
+
+
+def mostrar_menu(pontos):
+    fonte = pygame.font.SysFont(None, 28)
+    texto = fonte.render(f'Pontuação: {pontos}', True, VERDE)
+    reiniciar = fonte.render('Pressione R para reiniciar', True, VERMELHO)
+    sair = fonte.render('Pressione ESC para sair', True, VERMELHO)
+    while True:
+        tela.fill(PRETO)
+        tela.blit(texto, (160, 180))
+        tela.blit(reiniciar, (120, 220))
+        tela.blit(sair, (140, 260))
+        pygame.display.update()
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                return False
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_r:
+                    return True
+                if evento.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    return False
+
+def jogo():
+    global cobrinha, direcao, comida
+    cobrinha = [(100,50)]
+    direcao = (10,0)
+    comida = (100, 100)
+    rodando = True
+    relogio = pygame.time.Clock()
+    while rodando:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                rodando = False
+            if evento.type == pygame.KEYDOWN:
+                # Impede reversão de direção, Mapeamento de teclas
+                if (evento.key == pygame.K_UP or evento.key == pygame.K_w) and direcao != (0, 10):
+                    direcao = (0, -10)
+                elif (evento.key == pygame.K_DOWN or evento.key == pygame.K_s) and direcao != (0, -10):
+                    direcao = (0, 10)
+                elif (evento.key == pygame.K_LEFT or evento.key == pygame.K_a) and direcao != (10, 0):
+                    direcao = (-10, 0)
+                elif (evento.key == pygame.K_RIGHT or evento.key == pygame.K_d) and direcao != (-10, 0):
+                    direcao = (10, 0)
+
+        nova_cabeca = (cobrinha[0][0] + direcao[0], cobrinha[0][1] + direcao[1])
+        cobrinha.insert(0, nova_cabeca)
+
+        # Verifica se a cobrinha comeu a comida e atualiza a posição da comida
+        if nova_cabeca == comida:
+            comida = (random.randrange(0, 50) * 10, random.randrange(0, 50) * 10)
+        else:
+            cobrinha.pop()
+
+        if nova_cabeca in cobrinha[1:]:
+            rodando = False
+
+        if (nova_cabeca[0] < 0 or nova_cabeca[0] >= 500 or
+            nova_cabeca[1] < 0 or nova_cabeca[1] >= 500):
+            rodando = False
+
+        desenhar()
+        relogio.tick(15)
 
 while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            game_over()
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP and snake_direcao != 'BAIXO':
-                snake_direcao = 'CIMA'
-            elif event.key == pygame.K_DOWN and snake_direcao != 'CIMA':
-                snake_direcao = 'BAIXO'
-            elif event.key == pygame.K_LEFT and snake_direcao != 'DIREITA':
-                snake_direcao = 'ESQUERDA'
-            elif event.key == pygame.K_RIGHT and snake_direcao != 'ESQUERDA':
-                snake_direcao = 'DIREITA'
-
-    if snake_direcao == 'CIMA':
-        nova_cabeca = [snake_pos[0][0], snake_pos[0][1] - 10]
-    elif snake_direcao == 'BAIXO':
-        nova_cabeca = [snake_pos[0][0], snake_pos[0][1] + 10]
-    elif snake_direcao == 'ESQUERDA':
-        nova_cabeca = [snake_pos[0][0] - 10, snake_pos[0][1]]
-    elif snake_direcao == 'DIREITA':
-        nova_cabeca = [snake_pos[0][0] + 10, snake_pos[0][1]]
-
-    snake_pos.insert(0, nova_cabeca)
-    if snake_pos[0] == comida_pos:
-        comida_pos = [random.randrange(1, largura//10)*10, random.randrange(1, altura//10)*10]
-    else:
-        snake_pos.pop()
-
-    if (snake_pos[0][0] < 0 or snake_pos[0][0] >= largura or
-        snake_pos[0][1] < 0 or snake_pos[0][1] >= altura or
-        snake_pos[0] in snake_pos[1:]):
-        game_over()
-
-    tela.fill(PRETO)
-    for pos in snake_pos:
-        pygame.draw.rect(tela, VERDE, pygame.Rect(pos[0], pos[1], 10, 10))
-    pygame.draw.rect(tela, VERMELHO, pygame.Rect(comida_pos[0], comida_pos[1], 10, 10))
-    pygame.display.flip()
-    clock.tick(15)
+    jogo()
+    pontos = len(cobrinha) - 1
+    if not mostrar_menu(pontos):
+        break
+pygame.quit()
 '''
     with open("snake_template.py", "w", encoding="utf-8") as f:
         f.write(codigo_snake)
