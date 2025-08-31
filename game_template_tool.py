@@ -12,8 +12,11 @@ import random
 
 
 pygame.init()
+opacidade = 0
 tela = pygame.display.set_mode((500, 500))
 pygame.display.set_caption("Jogo da Cobrinha")
+fundo = pygame.image.load("Bigboss.png").convert_alpha()
+fundo.set_alpha(opacidade)
 
 # Cores
 PRETO = (0, 0, 0)
@@ -27,13 +30,14 @@ comida = (100, 100)
 # Define a cor dos elementos
 def desenhar():
     tela.fill(PRETO)
+    tela.blit(fundo, (0, 0))
     for parte in cobrinha:
         pygame.draw.rect(tela, VERDE, (*parte, 10, 10))
 
     pygame.draw.rect(tela, VERMELHO, (*comida, 10, 10))
     pygame.display.update()
 
-
+# Mostra o menu de fim de jogo
 def mostrar_menu(pontos):
     fonte = pygame.font.SysFont(None, 28)
     texto = fonte.render(f'Pontos: {pontos}', True, VERDE)
@@ -57,7 +61,7 @@ def mostrar_menu(pontos):
                     return False
 
 def jogo():
-    global cobrinha, direcao, comida
+    global cobrinha, direcao, comida, opacidade
     cobrinha = [(100,50)]
     direcao = (10,0)
     comida = (100, 100)
@@ -84,6 +88,8 @@ def jogo():
         # Verifica se a cobrinha comeu a comida e atualiza a posição da comida
         if nova_cabeca == comida:
             comida = (random.randrange(0, 50) * 10, random.randrange(0, 50) * 10)
+            opacidade = min(opacidade + 2.5, 255)
+            fundo.set_alpha(opacidade)
         else:
             cobrinha.pop()
 
@@ -94,8 +100,9 @@ def jogo():
             nova_cabeca[1] < 0 or nova_cabeca[1] >= 500):
             rodando = False
 
+        # Velocidade do jogo, quanto maior o valor, mais rapido 
         desenhar()
-        relogio.tick(15)
+        relogio.tick(10)
 
 while True:
     jogo()
