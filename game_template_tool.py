@@ -114,7 +114,7 @@ pygame.quit()
 
 # Blueprint Para o Campo Minado
 def criar_campo_minado():
-    messagebox.showinfo("Blueprint", "Jogo Campo Minado Sendo Gerado...")
+    messagebox.showinfo("Blueprint", "Ainda não implementado :(")
 
 def main():
     root = tk.Tk()
