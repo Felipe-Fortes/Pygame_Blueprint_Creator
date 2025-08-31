@@ -1,8 +1,10 @@
+import os
 import tkinter as tk
 from tkinter import messagebox 
 
 
-#Blueprint Para o Jogo Da Cobrinha
+# Blueprint Para o Jogo Da Cobrinha
+
 def criar_snake():
     codigo_snake = '''
 import pygame
@@ -34,7 +36,7 @@ def desenhar():
 
 def mostrar_menu(pontos):
     fonte = pygame.font.SysFont(None, 28)
-    texto = fonte.render(f'Pontuação: {pontos}', True, VERDE)
+    texto = fonte.render(f'Pontos: {pontos}', True, VERDE)
     reiniciar = fonte.render('Pressione R para reiniciar', True, VERMELHO)
     sair = fonte.render('Pressione ESC para sair', True, VERMELHO)
     while True:
@@ -102,12 +104,15 @@ while True:
         break
 pygame.quit()
 '''
-    with open("snake_template.py", "w", encoding="utf-8") as f:
-        f.write(codigo_snake)
-    messagebox.showinfo("Blueprint", "Jogo Snake Sendo Gerado...")
+    if os.path.exists("snake_template.py"):
+        messagebox.showinfo("AVISO", "Jogo Snake Já Foi Gerado, se quiser gerar novamente, exclua o arquivo existente(snake_template.py).")
+    else:
+        with open("snake_template.py", "w", encoding="utf-8") as f:
+            f.write(codigo_snake)
+        messagebox.showinfo("Blueprint", "Jogo Snake Sendo Gerado...")
 
 
-#Blueprint Para o Campo Minado
+# Blueprint Para o Campo Minado
 def criar_campo_minado():
     messagebox.showinfo("Blueprint", "Jogo Campo Minado Sendo Gerado...")
 
